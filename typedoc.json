@@ -1,0 +1,15 @@
+{
+  "entryPoints": [
+    "src/lib/auth.ts",
+    "src/lib/format.ts",
+    "src/lib/permissions.ts",
+    "src/server/services"
+  ],
+  "entryPointStrategy": "expand",
+  "out": "docs/developer",
+  "name": "PRCAR Developer Docs",
+  "tsconfig": "tsconfig.json",
+  "excludeInternal": true,
+  "excludePrivate": true,
+  "sort": ["source-order"]
+}

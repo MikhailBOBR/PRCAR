@@ -1,0 +1,164 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CLIENT
+  MANAGER
+  ADMIN
+}
+
+enum CarStatus {
+  AVAILABLE
+  RESERVED
+  SOLD
+  ARCHIVED
+}
+
+enum BodyType {
+  SEDAN
+  SUV
+  HATCHBACK
+  COUPE
+  PICKUP
+  CROSSOVER
+  WAGON
+}
+
+enum FuelType {
+  PETROL
+  DIESEL
+  HYBRID
+  ELECTRIC
+}
+
+enum Transmission {
+  AUTOMATIC
+  MANUAL
+  ROBOT
+  CVT
+}
+
+enum DriveType {
+  FWD
+  RWD
+  AWD
+}
+
+enum OrderType {
+  PURCHASE
+  RESERVATION
+  TEST_DRIVE
+  CREDIT
+}
+
+enum OrderStatus {
+  NEW
+  IN_PROGRESS
+  APPROVED
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id                    String      @id @default(cuid())
+  email                 String      @unique
+  passwordHash          String
+  name                  String
+  phone                 String
+  role                  UserRole    @default(CLIENT)
+  consentToPersonalData Boolean
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+  favorites             Favorite[]
+  orders                Order[]     @relation("CustomerOrders")
+  managedOrders         Order[]     @relation("ManagedOrders")
+  createdCars           Car[]       @relation("ManagerCars")
+
+  @@index([role])
+}
+
+model Car {
+  id           String       @id @default(cuid())
+  slug         String       @unique
+  brand        String
+  model        String
+  year         Int
+  price        Int
+  mileage      Int
+  vin          String       @unique
+  color        String?
+  city         String?
+  engineVolume Float?
+  horsepower   Int?
+  description  String
+  status       CarStatus    @default(AVAILABLE)
+  bodyType     BodyType
+  fuelType     FuelType
+  transmission Transmission
+  driveType    DriveType
+  featured     Boolean      @default(false)
+  createdById  String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  createdBy    User?        @relation("ManagerCars", fields: [createdById], references: [id], onDelete: SetNull)
+  images       CarImage[]
+  favorites    Favorite[]
+  orders       Order[]
+
+  @@index([brand, model])
+  @@index([price])
+  @@index([year])
+  @@index([status])
+}
+
+model CarImage {
+  id        String   @id @default(cuid())
+  carId     String
+  key       String
+  url       String
+  alt       String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  car       Car      @relation(fields: [carId], references: [id], onDelete: Cascade)
+
+  @@index([carId, sortOrder])
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  carId     String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  car       Car      @relation(fields: [carId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, carId])
+}
+
+model Order {
+  id                    String      @id @default(cuid())
+  userId                String
+  carId                 String
+  managerId             String?
+  fullName              String
+  phone                 String
+  comment               String?
+  type                  OrderType
+  status                OrderStatus @default(NEW)
+  preferredDate         DateTime?
+  consentToPersonalData Boolean
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+  user                  User        @relation("CustomerOrders", fields: [userId], references: [id], onDelete: Cascade)
+  manager               User?       @relation("ManagedOrders", fields: [managerId], references: [id], onDelete: SetNull)
+  car                   Car         @relation(fields: [carId], references: [id], onDelete: Restrict)
+
+  @@index([status, createdAt])
+  @@index([userId, createdAt])
+}
