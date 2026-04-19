@@ -1,6 +1,7 @@
 # Setup and Run
 
 ## Requirements
+
 - `Node.js`
 - `npm`
 - `Docker`
@@ -13,13 +14,17 @@ npm install
 
 ## Environment Variables
 
-Create a `.env` file and configure:
+Локальный запуск по умолчанию может использовать значения из `.env`, `.env.local` или `.env.example`.
+
+Если нужны свои значения, создайте `.env` и настройте:
+
 - `DATABASE_URL`
 - `AUTH_SECRET`
 - `NEXT_PUBLIC_APP_URL`
 - `UPLOAD_STORAGE`
 
 Optional storage variables:
+
 - `S3_ENDPOINT`
 - `S3_BUCKET`
 - `S3_ACCESS_KEY`
@@ -39,21 +44,25 @@ If `MinIO` is needed:
 docker compose up -d minio
 ```
 
-## Apply Prisma Schema
+The default local PostgreSQL port in `docker-compose.yml` is `5433`.
 
-```bash
-npx prisma db push
-```
+## Development Start
 
-## Start Development Server
+Команда разработки сама подготовит базу:
 
 ```bash
 npm run dev
 ```
 
+Перед запуском Next.js проект:
+
+- выполняет `prisma db push`;
+- загружает demo-данные, если база пустая.
+
 ## Useful Commands
 
 ```bash
+npm run db:init
 npm run lint
 npm run typecheck
 npm run test

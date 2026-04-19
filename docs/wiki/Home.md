@@ -1,32 +1,19 @@
 # PRCAR Wiki
 
-`PRCAR` is a fullstack web application for an online car dealership. The project combines a public catalog, car detail pages, a customer account area, favorites, order requests, and internal tools for managers and administrators.
+Этот каталог подготовлен как локальная wiki проекта и как заготовка для GitHub Wiki после публикации репозитория.
 
-## Roles
-- `CLIENT` - browses the catalog, saves favorites, submits requests, uses the personal account
-- `MANAGER` - manages cars and processes requests
-- `ADMIN` - manages user roles and administrative access
+## О проекте
 
-## Main Features
-- public car catalog with filters
-- car detail page with image gallery
-- registration and authentication
-- customer account and favorites
-- purchase, booking, and test-drive requests
-- manager panel for car management
-- admin panel for user role management
-- image upload and storage support
-- automated tests for key business logic
+`PRCAR` - fullstack-приложение автосалона. В нем объединены публичный каталог, карточки автомобилей, регистрация и авторизация, избранное, заявки клиентов, личный кабинет, менеджерская панель и административный контур.
 
-## Technology Stack
-- `Next.js`
-- `TypeScript`
-- `Prisma ORM`
-- `PostgreSQL`
-- `Docker`
-- `Vitest`
+## Роли
 
-## Wiki Navigation
+- `CLIENT` - просматривает каталог, добавляет автомобили в избранное, отправляет заявки и работает с личным кабинетом;
+- `MANAGER` - управляет карточками автомобилей и обрабатывает заявки;
+- `ADMIN` - управляет ролями пользователей и административным доступом.
+
+## Навигация
+
 - [About Project](./About-Project.md)
 - [Architecture](./Architecture.md)
 - [Project Structure](./Project-Structure.md)
@@ -37,3 +24,8 @@
 - [Testing](./Testing.md)
 - [Screenshots](./Screenshots.md)
 - [Conclusion](./Conclusion.md)
+
+## Связанные материалы
+
+- основной README: [../../README.md](../../README.md)
+- общий хаб документации: [../README.md](../README.md)
