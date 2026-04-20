@@ -331,7 +331,7 @@ const carFixtures = [
   },
 ];
 
-function slugify(value: string) {
+function slugify(value) {
   return value
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
