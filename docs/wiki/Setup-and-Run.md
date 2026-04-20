@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- `Node.js`
+- `Node.js 20+`
 - `npm`
 - `Docker`
 
@@ -12,52 +12,84 @@
 npm install
 ```
 
+If PowerShell blocks `npm.ps1`, run commands through `npm.cmd`.
+
 ## Environment Variables
 
-Локальный запуск по умолчанию может использовать значения из `.env`, `.env.local` или `.env.example`.
+For host startup the project can use values from `.env`, `.env.local`, or `.env.example`.
 
-Если нужны свои значения, создайте `.env` и настройте:
+If you need your own values, create `.env` and configure:
+
+```bash
+Copy-Item .env.example .env
+```
 
 - `DATABASE_URL`
 - `AUTH_SECRET`
 - `NEXT_PUBLIC_APP_URL`
 - `UPLOAD_STORAGE`
+- `UPLOAD_DIR`
 
 Optional storage variables:
 
 - `S3_ENDPOINT`
+- `S3_REGION`
 - `S3_BUCKET`
 - `S3_ACCESS_KEY`
 - `S3_SECRET_KEY`
+- `S3_FORCE_PATH_STYLE`
+
+For Docker Compose with S3, prefer `DOCKER_S3_*` overrides so the container does not inherit host-only endpoints such as `localhost`.
 
 ## Start Infrastructure
 
-Run PostgreSQL:
+Run PostgreSQL and MinIO:
 
 ```bash
-docker compose up -d postgres
+docker compose up -d postgres minio
 ```
 
-If `MinIO` is needed:
-
-```bash
-docker compose up -d minio
-```
-
-The default local PostgreSQL port in `docker-compose.yml` is `5433`.
+The default external PostgreSQL port in `docker-compose.yml` is `5433`.
 
 ## Development Start
-
-Команда разработки сама подготовит базу:
 
 ```bash
 npm run dev
 ```
 
-Перед запуском Next.js проект:
+Before `Next.js` starts, the project:
 
-- выполняет `prisma db push`;
-- загружает demo-данные, если база пустая.
+- runs schema sync for PostgreSQL;
+- loads demo data if the database is empty.
+
+## Local Production Start
+
+Build the app:
+
+```bash
+npm run build
+```
+
+Run the release profile:
+
+```bash
+npm run release:start
+```
+
+`release:start` automatically prepares the database before starting the production server.
+
+## Full Docker Release
+
+```bash
+docker compose up -d --build
+```
+
+After startup:
+
+- app: `http://localhost:3000`
+- postgres: `localhost:5433`
+- minio api: `http://localhost:9000`
+- minio console: `http://localhost:9001`
 
 ## Useful Commands
 
@@ -66,6 +98,9 @@ npm run db:init
 npm run lint
 npm run typecheck
 npm run test
+npm run release:check
+docker compose logs -f app
+docker compose down
 ```
 
 [Back to Home](./Home.md)

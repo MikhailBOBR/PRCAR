@@ -1,8 +1,8 @@
 # Развертывание и CI/CD
 
-## Локальный запуск
+## Локальная разработка
 
-Для локальной разработки достаточно:
+Для разработки достаточно:
 
 ```bash
 npm install
@@ -16,19 +16,85 @@ npm run dev
 - синхронизирует схему PostgreSQL через `prisma db push`;
 - загружает demo-данные, если база пустая.
 
-## Docker-инфраструктура
+Если в PowerShell блокируется `npm.ps1`, используйте `npm.cmd`.
+
+## Локальный production-запуск на хосте
+
+1. Установите зависимости:
+
+```bash
+npm install
+```
+
+2. Поднимите инфраструктуру:
+
+```bash
+docker compose up -d postgres minio
+```
+
+3. Соберите приложение:
+
+```bash
+npm run build
+```
+
+4. Запустите production-режим:
+
+```bash
+npm run release:start
+```
+
+`release:start` перед стартом приложения запускает `db:init`, поэтому БД подготавливается автоматически и повторно seed не выполняется, если данные уже есть.
+
+## Полный локальный релиз через Docker Compose
+
+```bash
+docker compose up -d --build
+```
 
 `docker-compose.yml` поднимает:
 
-- `postgres` - база данных проекта;
+- `postgres` - базу данных проекта;
 - `minio` - S3-совместимое хранилище для изображений;
 - `app` - production-контейнер приложения.
 
-Локально внешний порт PostgreSQL выставлен на `5433`, чтобы не конфликтовать с уже установленным Postgres на машине.
+Контейнер `app` сам:
+
+- инициализирует базу данных при старте;
+- запускает `Next.js` в production-режиме;
+- отдает healthcheck через `/api/health`.
+
+Полезные команды:
+
+```bash
+docker compose logs -f app
+docker compose down
+```
+
+## Переменные окружения
+
+Для локальной настройки можно скопировать `.env.example` в `.env` и изменить значения. Для Docker Compose наличие `.env` не обязательно: базовые fallback-значения уже зашиты в конфиг, а `DATABASE_URL` внутри контейнера всегда направлен на сервис `postgres`.
+
+Основные переменные:
+
+- `AUTH_SECRET`
+- `NEXT_PUBLIC_APP_URL`
+- `UPLOAD_STORAGE`
+- `UPLOAD_DIR`
+- `S3_ENDPOINT`
+- `S3_REGION`
+- `S3_BUCKET`
+- `S3_ACCESS_KEY`
+- `S3_SECRET_KEY`
+- `S3_FORCE_PATH_STYLE`
+
+Для Docker Compose S3-параметры контейнера приложения лучше переопределять через `DOCKER_S3_*`. Это защищает локальный релиз от ситуации, когда в `.env` указан хостовый адрес `localhost`, который не работает внутри контейнера.
+
+Локально внешний порт PostgreSQL выставлен на `5433`, чтобы не конфликтовать с установленным Postgres на машине.
 
 ## Что делает CI
 
-Workflow в `.github/workflows/ci.yml` проверяет проект в несколько этапов:
+Workflow в `.github/workflows/ci.yml`:
 
 - поднимает PostgreSQL как сервис GitHub Actions;
 - гоняет проверки на `Node.js 20` и `Node.js 22`;
