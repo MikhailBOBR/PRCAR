@@ -96,8 +96,8 @@ PRCAR/
 
 - `middleware.ts` - route protection and role-based access;
 - `prisma/schema.prisma` - database schema;
-- `prisma/seed.ts` - demo data;
-- `scripts/db-init.ts` - automatic database preparation before local development;
+- `prisma/seed.mjs` - demo data for database bootstrap and local release startup;
+- `scripts/db-init.mjs` - automatic database preparation before local development and local Docker release startup;
 - `docker-compose.yml` - local infrastructure for PostgreSQL, MinIO, and the app;
 - `ПРАВОВОЕ_УВЕДОМЛЕНИЕ_РФ.md` - legal notice for authorship and distribution rules.
 

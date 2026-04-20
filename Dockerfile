@@ -8,8 +8,16 @@ FROM base AS deps
 COPY package.json package-lock.json ./
 COPY prisma ./prisma
 COPY prisma.config.ts ./prisma.config.ts
-COPY scripts/env-loader.ts ./scripts/env-loader.ts
+COPY scripts/env-loader.mjs ./scripts/env-loader.mjs
 RUN npm ci
+
+FROM base AS prod-deps
+COPY package.json package-lock.json ./
+COPY prisma ./prisma
+COPY prisma.config.ts ./prisma.config.ts
+COPY scripts/env-loader.mjs ./scripts/env-loader.mjs
+RUN npm ci --omit=dev \
+    && npm cache clean --force
 
 FROM base AS builder
 ENV NODE_ENV=production
@@ -20,14 +28,13 @@ RUN npm run prisma:generate && npm run build
 FROM base AS runner
 ENV NODE_ENV=production
 COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
+COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/next.config.ts ./next.config.ts
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 COPY --from=builder /app/scripts ./scripts
-COPY --from=builder /app/src ./src
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=5 CMD ["node", "scripts/healthcheck.mjs"]
 CMD ["npm", "run", "release:start"]
